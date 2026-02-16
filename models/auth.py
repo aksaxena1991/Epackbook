@@ -1,11 +1,19 @@
 from datetime import datetime
+from models.base import Base
+from sqlalchemy import Column, Integer, String, Boolean, DateTime, UniqueConstraint
 
-from pydantic import BaseModel, EmailStr, Field
 
+class Auth(Base):
+    __tablename__ = 'auth'
 
-class Auth(BaseModel):
-    email:EmailStr
-    password:str = Field(min_length=8)
-    is_active:bool = False
-    mobile:str = Field(min_length=10)
-    timestamp: datetime
+    id = Column(Integer,primary_key=True, autoincrement=True)
+    email = Column(String(255),nullable=False)
+    password = Column(String(255),nullable=False)
+    is_active = Column(Boolean,default=False)
+    mobile = Column(String(255),nullable=False, index=True)
+    timestamp = Column(DateTime,default=datetime.utcnow)
+
+    __table_args__ = (UniqueConstraint( 'email',name='unique_email'),UniqueConstraint(
+        'mobile',name='unique_mobile'
+    ))
+
