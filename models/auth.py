@@ -4,7 +4,7 @@ from sqlalchemy import Column, Integer, String, Boolean, DateTime, UniqueConstra
 
 
 class Auth(Base):
-    __tablename__ = 'auth'
+    __tablename__ = 'auths'
 
     id = Column(Integer,primary_key=True, autoincrement=True)
     email = Column(String(255),nullable=False)

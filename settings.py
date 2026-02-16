@@ -12,6 +12,7 @@ class Settings:
     POSTGRES_DB:str = os.getenv("POSTGRES_DB")
     POSTGRES_SERVER: str = os.getenv("POSTGRES_SERVER", "localhost")
     POSTGRES_PORT:int = int(os.getenv("POSTGRES_PORT"))
+    POSTGRES_SCHEMA: str = os.getenv("POSTGRES_SCHEMA", "public")
     DATABASE_URL = f"postgresql://{POSTGRES_USER}:{POSTGRES_PASSWORD}@{POSTGRES_SERVER}:{POSTGRES_PORT}/{POSTGRES_DB}"
 
 settings = Settings()
