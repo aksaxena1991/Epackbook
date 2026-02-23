@@ -1,12 +1,11 @@
 from pydantic_settings import BaseSettings
-from pydantic import ConfigDict
 
 class DbSettings(BaseSettings):
     DB_HOST: str = "localhost"
     DB_PORT: int = 5432
     DB_NAME: str = "epackbook"
     DB_USER: str = "admin"
-    DB_PASSWORD: str = ""
+    DB_PASSWORD: str = 1689923100
 
     @property
     def database_url(self) -> str:
@@ -18,7 +17,6 @@ class DbSettings(BaseSettings):
 
     class Config:
         env_file = ".env"
+        extra = "ignore"
 
-
-# 🔒 Singleton by module import (Pythonic, thread-safe)
 db_settings = DbSettings()

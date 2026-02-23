@@ -1,6 +1,6 @@
 from sqlalchemy import Column, Integer, String
 from datetime import datetime
-from db.database import Base
+from app.db.database import Base
 class HealthCheck(Base):
     __tablename__ = "healthcheck"
     id = Column(Integer, primary_key=True)
