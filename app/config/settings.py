@@ -1,11 +1,13 @@
 from pydantic_settings import BaseSettings
-
+from os import getenv
+from dotenv import load_dotenv
+load_dotenv()
 class DbSettings(BaseSettings):
-    DB_HOST: str = "localhost"
-    DB_PORT: int = 5432
-    DB_NAME: str = "epackbook"
-    DB_USER: str = "admin"
-    DB_PASSWORD: str = 1689923100
+    DB_HOST: str = getenv("DB_HOST", "localhost")
+    DB_PORT: int = int(getenv("DB_PORT", 5432))
+    DB_NAME: str = getenv("POSTGRES_DB")
+    DB_USER: str = getenv("POSTGRES_USER")
+    DB_PASSWORD: str = getenv("POSTGRES_PASSWORD")
 
     @property
     def database_url(self) -> str:
