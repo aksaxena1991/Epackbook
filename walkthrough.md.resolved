@@ -1,0 +1,94 @@
+# Nginx Load Balancer — Walkthrough
+
+## What Was Built
+
+Nginx is now configured as a **reverse-proxy load balancer** in front of 3 FastAPI (`epackbook-api`) replicas, plus a Kubernetes Ingress manifest for the minikube deployment.
+
+---
+
+## Files Created / Changed
+
+| File | Change |
+|------|--------|
+| [Dockerfile.api](file:///Users/chiku/PycharmProjects/Epackbook/Dockerfile.api) | NEW — FastAPI app image (separate from postgres Dockerfile) |
+| [nginx/nginx.conf](file:///Users/chiku/PycharmProjects/Epackbook/nginx/nginx.conf) | NEW — Nginx upstream with `least_conn` balancing across `api_1/2/3:8000` |
+| [docker-compose.yml](file:///Users/chiku/PycharmProjects/Epackbook/docker-compose.yml) | MODIFIED — Added `api_1`, `api_2`, `api_3` services + `nginx` service |
+| [k8s/nginx-ingress.yaml](file:///Users/chiku/PycharmProjects/Epackbook/k8s/nginx-ingress.yaml) | NEW — Kubernetes Ingress resource (nginx-ingress controller) |
+| [requirements.txt](file:///Users/chiku/PycharmProjects/Epackbook/requirements.txt) | NEW — Generated from venv for the API image |
+
+---
+
+## Architecture
+
+```
+                ┌─────────────────────────────┐
+  Client ──────▶│  nginx  (port 80)           │
+                │  strategy: least_conn        │
+                └──────┬────────┬──────┬───────┘
+                       │        │      │
+               ┌───────┘  ┌─────┘  ┌───┘
+               ▼          ▼        ▼
+          api_1:8000  api_2:8000  api_3:8000
+               │          │        │
+               └──────┬───┘────────┘
+                      ▼
+               PostgreSQL :5432
+```
+
+---
+
+## Verification Results
+
+### Container status — all healthy ✅
+```
+epackbook_api_1   Up (healthy)   8000/tcp
+epackbook_api_2   Up (healthy)   8000/tcp
+epackbook_api_3   Up (healthy)   8000/tcp
+epackbook_nginx   Up             0.0.0.0:80->80/tcp
+epackbook_postgres Up (healthy)  0.0.0.0:5432->5432/tcp
+```
+
+### 10 curl requests via nginx — all returned 200 ✅
+```bash
+$ for i in $(seq 1 10); do curl -s http://localhost/health/db; echo; done
+{"database":"up","result":1}   # × 10
+```
+
+### Traffic distributed across all 3 instances ✅
+```
+epackbook_api_1 → 21 hits (includes internal healthchecks)
+epackbook_api_2 → 11 hits
+epackbook_api_3 → 11 hits
+```
+
+---
+
+## Quick-Start Commands
+
+```bash
+# Start the full stack (postgres + 3 api replicas + nginx + pgadmin)
+docker compose up -d
+
+# Stop
+docker compose down
+
+# View nginx access log
+docker logs epackbook_nginx
+
+# Test load balancing
+for i in $(seq 1 10); do curl -s http://localhost/health/db; echo; done
+```
+
+## Kubernetes (minikube)
+
+```bash
+# Enable nginx ingress addon (once)
+minikube addons enable ingress
+
+# Apply the ingress
+kubectl apply -f k8s/nginx-ingress.yaml -n epackbook
+
+# Get the ingress IP + test
+kubectl get ingress -n epackbook
+curl http://<INGRESS_IP>/health/db
+```
