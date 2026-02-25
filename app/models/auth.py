@@ -5,6 +5,7 @@ from app.db.database import Base
 
 class Auth(Base):
     __tablename__ = "auth"
+    __table_args__ = {"schema": "auth_schema"}
     id = Column(Integer, primary_key=True, autoincrement=True)
     email = Column(String, nullable=False)
     password = Column(String, nullable=False)
