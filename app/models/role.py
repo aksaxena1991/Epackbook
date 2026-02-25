@@ -3,9 +3,9 @@ from datetime import datetime
 from app.db.database import Base
 
 
-class HealthCheck(Base):
-    __tablename__ = "healthcheck"
+class Role(Base):
+    __tablename__ = "role"
     id = Column(Integer, primary_key=True, autoincrement=True)
-    status = Column(String, nullable=False)
+    name = Column(String, nullable=False)
     created_at = Column(DateTime, nullable=False, default=datetime.utcnow)
     updated_at = Column(DateTime, nullable=False, default=datetime.utcnow, onupdate=datetime.utcnow)
